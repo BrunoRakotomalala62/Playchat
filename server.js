@@ -212,11 +212,19 @@ async function handler(req, res) {
 }
 
 const server = http.createServer(handler);
+
+// Démarrage :
+//  - self-host : node server.js -> écoute sur HOST/PORT (défaut 127.0.0.1:8788)
+//  - Vercel / PaaS : le plateau exécute server.js comme entrée et exige une
+//    écoute sur process.env.PORT (host 0.0.0.0) — sans ça, chaque requête
+//    échoue en FUNCTION_INVOCATION_FAILED.
 if (require.main === module) {
-  server.listen(cfg.port, cfg.host, () => {
-    log('info', `plai-api démarré sur http://${cfg.host}:${cfg.port}`);
-    log('info', `  curl "http://${cfg.host}:${cfg.port}/api/chat?prompt=bonjour&uid=123"`);
-    log('info', `  curl "http://${cfg.host}:${cfg.port}/api/chat?prompt=décris cette photo&image_url=https://exemple.com/photo.png&uid=123"`);
+  const port = process.env.PORT ? parseInt(process.env.PORT, 10) : cfg.port;
+  const host = process.env.PORT ? '0.0.0.0' : cfg.host;
+  server.listen(port, host, () => {
+    log('info', `plai-api démarré sur http://${host}:${port}`);
+    log('info', `  curl "http://127.0.0.1:${port}/api/chat?prompt=bonjour&uid=123"`);
+    log('info', `  curl "http://127.0.0.1:${port}/api/chat?prompt=décris cette photo&image_url=https://exemple.com/photo.png&uid=123"`);
   });
 }
 
