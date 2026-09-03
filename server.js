@@ -19,6 +19,7 @@ const { runChat, resetHistory, sessionInfo, withCookie, getHistory } = require('
 const { fetchAliases, chatSendStreaming } = require('./lib/plai');
 
 const startedAt = Date.now();
+log('info', `[init] module chargé (mode ${process.env.VERCEL ? 'Vercel import' : 'serveur'}, node ${process.version}, pid ${process.pid})`);
 
 // ---------- Files d'attente ----------
 // Concurrence amont limitée ; les tours d'un même uid sont sérialisés (la
@@ -213,11 +214,18 @@ async function handler(req, res) {
 
 const server = http.createServer(handler);
 
-// Démarrage :
-//  - self-host : node server.js -> écoute sur HOST/PORT (défaut 127.0.0.1:8788)
-//  - Vercel / PaaS : le plateau exécute server.js comme entrée et exige une
-//    écoute sur process.env.PORT (host 0.0.0.0) — sans ça, chaque requête
-//    échoue en FUNCTION_INVOCATION_FAILED.
+// Export pour Vercel (preset Node.js) : la plateforme IMPORTE server.js
+// (compilé en server.cjs) et exige un export par défaut qui soit une FONCTION
+// (req, res) ou un serveur HTTP — sinon :
+//   « Invalid export found in module server.cjs. The default export must be a
+//     function or server. » -> 500 sur toutes les routes.
+module.exports = handler;
+module.exports.handler = handler; // compat : require('./server').handler
+module.exports.server = server;   // compat : require('./server').server
+
+// Démarrage self-host : `node server.js` écoute sur HOST/PORT (défaut
+// 127.0.0.1:8788) ; sous Vercel (process.env.PORT fourni) on écoute sur le port
+// de la plateforme, host 0.0.0.0.
 if (require.main === module) {
   const port = process.env.PORT ? parseInt(process.env.PORT, 10) : cfg.port;
   const host = process.env.PORT ? '0.0.0.0' : cfg.host;
@@ -227,6 +235,4 @@ if (require.main === module) {
     log('info', `  curl "http://127.0.0.1:${port}/api/chat?prompt=décris cette photo&image_url=https://exemple.com/photo.png&uid=123"`);
   });
 }
-
-module.exports = { handler, server };
 

@@ -55,13 +55,16 @@ Copier `.env.example` → `.env` pour ajuster (port, pool de sessions, pacing…
 
 ## Déploiement Vercel (mode serveur Node.js)
 
-Vercel exécute le dépôt comme **un serveur Node.js mono-fonction** : `server.js`
-est l'entrée (script `start`), et **toutes** les routes arrivent au même handler.
-`server.js` écoute donc sur `process.env.PORT` (fourni par la plateforme) dès
-qu'il est lancé en entrée — aucune configuration `/api` ni `vercel.json` requise.
+Vercel traite le dépôt comme **une fonction Node.js unique** : la plateforme
+**importe** `server.js` (compilé en `server.cjs`) et **toutes** les routes
+arrivent au même handler. `server.js` exporte donc le handler HTTP en **export
+par défaut** (fonction `(req, res)`) — exigence Vercel, sans quoi :
+`Invalid export found in module server.cjs. The default export must be a
+function or server.` (500 sur toutes les routes). En `node server.js`
+(self-host), le même fichier écoute sur `process.env.PORT`/`8788`.
 
 ```bash
-# brancher le repo sur Vercel (framework : Node.js) puis :
+# brancher le repo sur Vercel (framework : Node.js, pas de build commande) puis :
 vercel --prod
 ```
 
