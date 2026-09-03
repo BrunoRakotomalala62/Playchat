@@ -1,0 +1,15 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "version": 2,
+  "functions": {
+    "api/index.js": {
+      "maxDuration": 60
+    }
+  },
+  "rewrites": [
+    { "source": "/healthz", "destination": "/api/index" },
+    { "source": "/api/chat", "destination": "/api/index" },
+    { "source": "/api/models", "destination": "/api/index" },
+    { "source": "/api/status", "destination": "/api/index" }
+  ]
+}

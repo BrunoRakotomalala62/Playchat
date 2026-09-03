@@ -1,0 +1,14 @@
+{
+  "name": "plai-api",
+  "version": "1.0.0",
+  "description": "Playchat — API REST autour de https://plai.chat (chat IA anonyme, tier free) — self-host ou Vercel, zéro dépendance",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "demo": "bash tools/demo.sh"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "license": "MIT"
+}

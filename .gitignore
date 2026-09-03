@@ -1,0 +1,10 @@
+# Dépendances & état local
+node_modules/
+.env
+
+# État runtime généré par le serveur (cookies de session + mémoire uid)
+.plai-state.json
+
+# Logs & OS
+*.log
+.DS_Store
